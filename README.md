@@ -2,8 +2,7 @@
 # Strix
 
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/freitaseric/strix/tests.yml?label=tests)
-![GitHub Release](https://img.shields.io/github/v/release/freitaseric/strix)
-
+![GitHub Release](https://img.shields.io/github/v/release/freitaseric/strix?include_prereleases)
 
 A simple programming language thought for embedded apps and micro kernels.
 
