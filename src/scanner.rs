@@ -17,7 +17,7 @@ impl Scanner {
             source,
             tokens: vec![],
             current: 0,
-            line: 0,
+            line: 1,
             start: 0,
         }
     }
@@ -123,9 +123,15 @@ impl Scanner {
     }
 
     fn advance(&mut self) -> Option<char> {
+        if self.current >= self.source.len() {
+            return None;
+        }
+
+        let char_to_return = self.source.chars().nth(self.current);
+
         self.current += 1;
 
-        self.source.chars().nth(self.current)
+        char_to_return
     }
 
     fn add_token(&mut self, token_type: TokenType, literal: Option<Literal>) {
@@ -175,7 +181,7 @@ impl Scanner {
 
         self.advance();
 
-        let value = &self.source[self.start + 1..self.current + 1];
+        let value = &self.source[self.start + 1..self.current - 1];
         self.add_token(TokenType::String, Some(Literal::String(value.to_string())));
 
         Ok(())
