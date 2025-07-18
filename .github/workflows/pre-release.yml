@@ -6,6 +6,8 @@ on:
       - "v*.*.*-debug"
       - "v*.*.*-rc*"
 
+  workflow_dispatch:
+
 permissions:
   contents: write
 
@@ -78,7 +80,7 @@ jobs:
           cd target/release
           Compress-Archive -Path ${{ matrix.binary_name }} -DestinationPath ${{ matrix.binary_name }}-${{ matrix.asset_name_suffix }}.zip
           cd ../..
-      
+
       - name: Sign app (Windows)
         uses: sigstore/cosign-installer@v3
       - run: |
