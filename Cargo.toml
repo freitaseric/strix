@@ -1,0 +1,20 @@
+[package]
+name = "strix"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+clearscreen = "4.0.2"
+phf = { version = "0.12.1", features = ["macros"] }
+
+[profile.dev]
+opt-level = 0
+debug = true
+panic = "unwind"
+
+[profile.release]
+opt-level = 3
+debug = false
+panic = "abort"
+lto = true
+codegen-units = 8
