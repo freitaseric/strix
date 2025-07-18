@@ -81,12 +81,16 @@ jobs:
           Compress-Archive -Path ${{ matrix.binary_name }} -DestinationPath ${{ matrix.binary_name }}-${{ matrix.asset_name_suffix }}.zip
           cd ../..
 
-      - name: Sign app (Windows)
-        uses: sigstore/cosign-installer@v3
-      - run: |
-          cd target/release
-          cosign sign --yes ${{ matrix.binary_name }}-${{ matrix.asset_name_suffix }}.zip
-          cd ../..
+      # - name: Install signer (Windows)
+      #   if: runner.os == 'Windows'
+      #   uses: sigstore/cosign-installer@v3
+
+      # - name: Sign app (Windows)
+      #   if: runner.os == 'Windows'
+      #   run: |
+      #     cd target/release
+      #     cosign sign --yes ${{ matrix.binary_name }}-${{ matrix.asset_name_suffix }}.zip
+      #     cd ../..
 
       - name: Attach release arthifact
         uses: actions/upload-release-asset@v1
