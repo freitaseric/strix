@@ -5,6 +5,7 @@ use crate::strix::Strix;
 mod ast;
 mod err;
 mod expr;
+mod interpreter;
 mod parser;
 mod scanner;
 mod strix;
@@ -38,29 +39,21 @@ mod tests {
     #[test]
     fn pretty_print_ast() {
         // Represents the expression: -123 * (45.67)
-        let expression = Expr::Binary {
-            left: Box::new(Expr::Unary {
-                operator: Token::new(TokenType::Minus, "-".to_string(), None, 1),
-                right: Box::new(Expr::Literal {
-                    value: Literal::Number(123.0),
-                }),
-            }),
-            operator: Token::new(TokenType::Star, "*".to_string(), None, 1),
-            right: Box::new(Expr::Grouping {
-                expression: Box::new(Expr::Literal {
-                    value: Literal::Number(45.67),
-                }),
-            }),
-        };
+        let expression = Expr::new_binary(
+            Box::new(Expr::new_unary(
+                Token::new(TokenType::Minus, "-".to_string(), None, 1),
+                Box::new(Expr::new_literal(Literal::Number(123.0))),
+            )),
+            Token::new(TokenType::Star, "*".to_string(), None, 1),
+            Box::new(Expr::new_grouping(Box::new(Expr::new_literal(
+                Literal::Number(45.67),
+            )))),
+        );
 
         // Creates an instance of the visitor
         let mut printer = AstPrinter;
+        let result = printer.print(expression);
 
-        // Uses the `accept` method to start the visitation process
-        let result = expression.accept(&mut printer);
-
-        // Prints the result
-        println!("{}", result);
         assert_eq!(result, "(* (- 123) (group 45.67))".to_string())
     }
 }

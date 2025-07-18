@@ -4,7 +4,7 @@ use std::{
     process,
 };
 
-use crate::{ast::AstPrinter, parser::Parser, scanner::Scanner};
+use crate::{interpreter::Interpreter, parser::Parser, scanner::Scanner};
 
 pub struct Strix {
     had_error: bool,
@@ -20,16 +20,12 @@ impl Strix {
         let tokens = scanner.scan_tokens();
 
         let mut parser = Parser::from(tokens.clone());
-        match parser.parse() {
-            Ok(expr) => {
-                let mut ast = AstPrinter;
-                println!("{:#?}", ast.print(expr))
-            }
-            Err(err) => {
-                self.had_error = true;
-                eprintln!("{:#?}", err)
-            }
-        };
+        let expr = parser.parse().unwrap();
+
+        let mut interpreter = Interpreter::new();
+        if let Ok(result) = interpreter.interpret(&expr) {
+            println!("{result}")
+        }
     }
 
     pub fn run_prompt(&mut self) {
