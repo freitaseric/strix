@@ -78,6 +78,13 @@ jobs:
           cd target/release
           Compress-Archive -Path ${{ matrix.binary_name }} -DestinationPath ${{ matrix.binary_name }}-${{ matrix.asset_name_suffix }}.zip
           cd ../..
+      
+      - name: Sign app (Windows)
+        uses: sigstore/cosign-installer@v3
+      - run: |
+          cd target/release
+          cosign sign --yes ${{ matrix.binary_name }}-${{ matrix.asset_name_suffix }}.zip
+          cd ../..
 
       - name: Attach release arthifact
         uses: actions/upload-release-asset@v1
