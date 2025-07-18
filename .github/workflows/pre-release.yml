@@ -1,0 +1,106 @@
+name: Create a pre-release
+
+on:
+  push:
+    tags:
+      - "v*.*.*-debug"
+      - "v*.*.*-rc*"
+
+permissions:
+  contents: write
+
+jobs:
+  create_release:
+    name: Craate a release
+    runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+    steps:
+      - name: Create a draft release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref_name }}
+          release_name: Release ${{ github.ref_name }}
+          body: "Files built for pre-release"
+          draft: true
+          prerelease: true
+
+  build_and_upload:
+    name: Compile and attach binaries
+    needs: create_release
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            asset_name_suffix: linux-x86_64
+            binary_name: strix
+            asset_content_type: application/gzip
+
+          - os: macos-latest
+            target: x86_64-apple-darwin
+            asset_name_suffix: macos-x86_64
+            binary_name: strix
+            asset_content_type: application/gzip
+
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            asset_name_suffix: windows-x86_64
+            binary_name: strix.exe
+            asset_content_type: application/zip
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Instalar Rust e Cache
+        uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Compile project in release mode
+        run: cargo build --release --locked
+
+      - name: Compact binary (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: |
+          cd target/release
+          tar czf ${{ matrix.binary_name }}-${{ matrix.asset_name_suffix }}.tar.gz ${{ matrix.binary_name }}
+          cd ../..
+
+      - name: Compact binary (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          cd target/release
+          Compress-Archive -Path ${{ matrix.binary_name }} -DestinationPath ${{ matrix.binary_name }}-${{ matrix.asset_name_suffix }}.zip
+          cd ../..
+
+      - name: Attach release arthifact
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create_release.outputs.upload_url }}
+          asset_path: ./target/release/${{ matrix.binary_name }}-${{ matrix.asset_name_suffix }}.${{ runner.os == 'Windows' && 'zip' || 'tar.gz' }}
+          asset_name: ${{ matrix.binary_name }}-${{ matrix.asset_name_suffix }}.${{ runner.os == 'Windows' && 'zip' || 'tar.gz' }}
+          asset_content_type: ${{ matrix.asset_content_type }}
+
+  publish_release:
+    name: Publish release
+    needs: [create_release, build_and_upload]
+    runs-on: ubuntu-latest
+    if: success()
+    steps:
+      - name: Publish release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref_name }}
+          release_name: Release ${{ github.ref_name }}
+          draft: false
+          prerelease: true
