@@ -1,6 +1,10 @@
 <!-- omit in toc -->
 # Strix
 
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/freitaseric/strix/tests.yml?label=tests)
+![GitHub Release](https://img.shields.io/github/v/release/freitaseric/strix)
+
+
 A simple programming language thought for embedded apps and micro kernels.
 
 <!-- omit in toc -->
