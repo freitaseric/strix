@@ -31,9 +31,7 @@ fn main() {
 #[cfg(test)]
 mod tests {
     use crate::{
-        ast::AstPrinter,
-        expr::Expr,
-        tokenizer::{Literal, Token, TokenType},
+        ast::AstPrinter, expr::Expr, tokenizer::{Literal, Token, TokenType}
     };
 
     #[test]
@@ -51,7 +49,7 @@ mod tests {
         );
 
         // Creates an instance of the visitor
-        let mut printer = AstPrinter;
+        let mut printer = AstPrinter::new();
         let result = printer.print(expression);
 
         assert_eq!(result, "(* (- 123) (group 45.67))".to_string())

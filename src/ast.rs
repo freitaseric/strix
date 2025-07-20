@@ -6,7 +6,12 @@ use crate::{
 
 pub struct AstPrinter;
 
+#[allow(dead_code)]
 impl AstPrinter {
+    pub fn new() -> Self {
+        Self
+    }
+
     pub fn print(&mut self, expr: Expr) -> String {
         expr.accept(self)
     }
